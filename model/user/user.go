@@ -2,35 +2,52 @@ package user
 
 
 type User struct {
-	User_id     int `gorm:"primaryKey"`
-	User_name   string
-	User_email  string
-	User_type   int
-	User_phone  string
-	User_secret string
+	UserId   int `gorm:"primaryKey"`
+	UserName string  `gorm:"uniqueIndex;size:30"`
+	UserEmail string `gorm:"uniqueIndex;size:30"`
+	UserType  Role
+	UserPhone  string `gorm:"size:20"`
+	UserSecret string
 }
 
-
-type UserResp struct {
+type UserInfoResp struct {
 	ID     int    `json:"user_id"`
 	Name   string `json:"user_name"`
 	Email  string `json:"user_email"`
-	Type   int    `json:"user_type"`
+	Type   Role    `json:"user_type"`
 	Phone  string `json:"user_phone"`
 }
 
-type UserReq struct {
-	Modify_field string `json:"modify_field" binding:"required"`
-	User_name    string `json:"user_name"`
-	User_email   string `json:"user_email"`
-	User_type    int    `json:"user_type"`
-	User_phone   string `json:"user_phone"`
+type UserModifyReq struct {
+	ModifyField string `json:"modify_field" binding:"required"`
+	UserName  string `json:"user_name"`
+	UserEmail  string `json:"user_email"`
+	UserType  Role   `json:"user_type"`
+	UserPhone string `json:"user_phone"`
 }
 
-type AuthReq struct {
-	Account string `json:"account" form:"account" binding:"required"`
-	Secret  string `json:"secret" form:"secret" binding:"required"`
+type UserCreateReq struct {
+	UserName  string `json:"user_name" form:"user_name" binding:"required,max=30"`
+	UserEmail string `json:"user_email" form:"user_email" binding:"required,max=30"`
+	UserSecret string `json:"user_secret" form:"user_secret" binding:"required,max=20"`
+	UserPhone string `json:"user_phone" form:"user_phone" binding:"required,max=20"`
 }
+
+
+type AuthReq struct {
+	Email  string `json:"email" form:"email" binding:"required"`
+	Secret string `json:"secret" form:"secret" binding:"required"`
+}
+
+type AuthResq struct {
+	UserName  string `json:"user_name"`
+	UserEmail  string `json:"user_email"`
+	UserType  Role   `json:"user_type"`
+	UserToken string `json:"user_token"`
+}
+
+
+
 
 type TokenAuth struct {
 	Token string `json:"token" form:"token" binding:"required"`

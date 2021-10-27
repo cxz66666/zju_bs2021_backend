@@ -14,7 +14,7 @@ func GetStudentToken(user user.User) (string,error) {
 	return token,err
 }
 
-func GetSysAdminToken(user user.User) (string,error) {
+func GetSysAdminToken() (string,error) {
 	model:=GetClaimFromSysAdmin()
 	tokenClaims:=jwt.NewWithClaims(jwt.SigningMethodHS256,model)
 

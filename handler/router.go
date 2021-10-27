@@ -2,6 +2,8 @@ package handler
 
 import (
 	"annotation/handler/ping"
+	"annotation/handler/token"
+	"annotation/handler/user"
 	"annotation/middlware"
 	"annotation/utils/setting"
 	"github.com/gin-gonic/gin"
@@ -25,6 +27,20 @@ func InitRouter() *gin.Engine {
 
 	api.GET("/ping",ping.Pong)
 
+	userMod:=api.Group("/user")
+	{
+		userMod.GET("/me",middlware.AuthenticationMiddleware(),middlware.StaffOnly(), user.GetInfo)
+		userMod.POST("/me",user.CreateUser)
+		userMod.PUT("/me",middlware.AuthenticationMiddleware(),middlware.StaffOnly(),user.ModifyInfo)
+	}
+
+	tokenMod:=api.Group("/token")
+	{
+		tokenMod.POST("/login", token.Login)
+		tokenMod.GET("/logout", middlware.AuthenticationMiddleware(),middlware.StaffOnly(), token.Logout)
+		tokenMod.POST("/refresh", middlware.AuthenticationMiddleware(),middlware.StaffOnly(), token.Refresh)
+
+	}
 
 
 

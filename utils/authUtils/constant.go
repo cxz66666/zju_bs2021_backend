@@ -1,20 +1,12 @@
 package authUtils
 
 import (
+	"annotation/model/user"
 	"annotation/utils/setting"
 	"github.com/dgrijalva/jwt-go"
-	"annotation/model/user"
 	"time"
 )
 
-type Role int
-
-
-const (
-	Staff Role =1
-	Admin Role =2
-	SysAdmin Role=3
-)
 
  type Policy interface {
 	 AdminOnly() bool
@@ -33,12 +25,12 @@ const (
 	 Name string `json:"name"`
 	 UserId int `json:"user_id"`
 	 Email string `json:"email"`
-	 Role Role `json:"role"`
+	 Role user.Role `json:"role"`
 	 jwt.StandardClaims
  }
 
 func (p *Payload) AdminOnly() bool {
-	return p.Role==Admin || p.Role==SysAdmin
+	return p.Role==user.Admin || p.Role==user.SysAdmin
 }
 
 func (p *Payload) CheckExpired() bool {
@@ -47,11 +39,11 @@ func (p *Payload) CheckExpired() bool {
 
 
 func (p *Payload) SysAdminOnly() bool {
-	return p.Role==SysAdmin
+	return p.Role==user.SysAdmin
 }
 
 func (p *Payload) StaffOnly() bool {
-	return p.Role==SysAdmin || p.Role==Admin || p.Role==Staff
+	return p.Role==user.SysAdmin || p.Role==user.Admin || p.Role==user.Staff
 }
 
 func (p *Payload) GetId() int {
@@ -68,10 +60,10 @@ func (p *Payload) GetEmail() string {
 
 func (p *Payload) ConvertToUser() user.User {
 	return user.User{
-		User_email: p.Email,
-		User_type: int(p.Role),
-		User_name: p.Name,
-		User_id: p.UserId,
+		UserEmail: p.Email,
+		UserType:  p.Role,
+		UserName:  p.Name,
+		UserId:    p.UserId,
 	}
 }
 
@@ -83,10 +75,10 @@ func GetClaimFromUser(user user.User) *Payload {
 	expireTime:=nowTime.Add(setting.ServerSetting.JwtExpireTime)
 
 	return &Payload{
-		Name: user.User_name,
-		UserId: user.User_id,
-		Email: user.User_email,
-		Role: Role(user.User_type),
+		Name: user.UserName,
+		UserId: user.UserId,
+		Email: user.UserEmail,
+		Role: user.UserType,
 		StandardClaims:jwt.StandardClaims{
 			ExpiresAt:expireTime.Unix(),
 			Issuer: setting.SecretSetting.JwtIssuer,
@@ -102,10 +94,10 @@ func GetClaimFromSysAdmin() *Payload  {
 	expireTime:=nowTime.Add(setting.ServerSetting.JwtExpireTime)
 
 	return &Payload{
-		Name: "系统管理员",
-		UserId: 10086,
-		Email: "cxz@zjueva.net",
-		Role: SysAdmin,
+		Name: setting.AdminSetting.Name,
+		UserId: setting.AdminSetting.UserId,
+		Email: setting.AdminSetting.Email,
+		Role: user.SysAdmin,
 		StandardClaims:jwt.StandardClaims{
 			ExpiresAt: expireTime.Unix(),
 			Issuer: setting.SecretSetting.JwtIssuer,

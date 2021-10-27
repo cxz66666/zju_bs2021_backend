@@ -1,6 +1,7 @@
 package db
 
 import (
+	"annotation/model/user"
 	"annotation/utils/setting"
 	"fmt"
 	"gorm.io/driver/mysql"
@@ -23,19 +24,19 @@ var (
 func Setup() {
 	//连接mysql数据库
 	var (
-		dbType, dbName, user, password, host, tablePrefix string
-		err error
+		dbType, dbName, dbUser, password, host, tablePrefix string
+		err                                                 error
 	)
 	dbType=setting.DatabaseSetting.Type
 	dbName=setting.DatabaseSetting.DbName
-	user=setting.DatabaseSetting.User
+	dbUser =setting.DatabaseSetting.User
 	password=setting.DatabaseSetting.Password
 	host=setting.DatabaseSetting.Host
 	tablePrefix=setting.DatabaseSetting.TablePrefix
 
 	// debug mode
 
-	MySqlDNS = fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", user, password,host,dbName)
+	MySqlDNS = fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbUser, password,host,dbName)
 
 	MysqlDB, err = gorm.Open(mysql.Open(MySqlDNS), &gorm.Config{})
 	if err != nil {
@@ -50,10 +51,13 @@ func Setup() {
 		fmt.Printf("[warning]  '%s' will be not be use in current version",dbType)
 		os.Exit(-1)
 	}
+	MysqlDB.Debug()
 	// auto migrate  it can't handle the dependency relations, so you need handle it by yourself
-	// MysqlDB.AutoMigrate(&user.User{})
+	// MysqlDB.AutoMigrate(&dbUser.User{})
 	// MysqlDB.AutoMigrate(&subscription.Subscription{})
 	// MysqlDB.AutoMigrate(&subscription.Order{})
 	// MysqlDB.AutoMigrate(&notice.Notice{})
+	MysqlDB.AutoMigrate(&user.User{})
+
 }
 

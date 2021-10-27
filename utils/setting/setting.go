@@ -51,9 +51,23 @@ type Database struct {
 }
 var DatabaseSetting = &Database{}
 
+type Admin struct {
+	Email string
+	Password string
+	UserId int
+	Name string
+}
+var AdminSetting = &Admin{}
+
+
+
 type Secret struct {
 	JwtKey string
 	JwtIssuer string
+	SaltA string
+	SaltB string
+	AesKey string
+	AesIv string
 }
 var SecretSetting = &Secret{}
 
@@ -93,6 +107,13 @@ func Setup()  {
 	}
 
 	// you can use env which setting in docker(use os.env)
+
+	//---------------- admin config ----------------------
+	err=Cfg.Section("admin").MapTo(AdminSetting)
+	if err!=nil{
+		log.Fatalf("Fail to parse 'AdminSetting': %v", err)
+	}
+
 
 	err=Cfg.Section("secret").MapTo(SecretSetting)
 	if err!=nil	{
