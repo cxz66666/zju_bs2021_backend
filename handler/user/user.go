@@ -8,13 +8,27 @@ import (
 	"annotation/utils/crypto"
 	"annotation/utils/logging"
 	"annotation/utils/response"
+	"annotation/utils/setting"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
 
 func GetInfo(c *gin.Context) {
 	claim,_:=c.Get(define.ANNOTATIONPOLICY)
-	userID:=claim.(authUtils.Policy).GetId()
+	policy,_:=claim.(authUtils.Policy)
+	//如果是系统管理员 直接特判返回
+	if policy.SysAdminOnly() {
+		sysAdminResp:=user.UserInfoResp{
+			ID: setting.AdminSetting.UserId,
+			Name: setting.AdminSetting.Name,
+			Email: setting.AdminSetting.Email,
+			Type: user.SysAdmin,
+			Phone: "1008611",
+		}
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONData(sysAdminResp))
+		return
+	}
+	userID:=policy.GetId()
 
 	userRec:=user_service.QueryUserById(userID)
 
@@ -36,7 +50,18 @@ func GetInfo(c *gin.Context) {
 
 func ModifyInfo	(c *gin.Context)  {
 	claim,_:=c.Get(define.ANNOTATIONPOLICY)
-	userID:=claim.(authUtils.Policy).GetId()
+	policy,_:=claim.(authUtils.Policy)
+
+
+	//特判sysAdmin情况
+	if policy.SysAdminOnly() {
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg("系统管理员不支持修改资料"))
+		c.Abort()
+		return
+	}
+
+
+	userID:=policy.GetId()
 
 	userRec:=user_service.QueryUserById(userID)
 	//后续清除缓存用到oldUser
@@ -109,6 +134,4 @@ func CreateUser(c *gin.Context)  {
 
 	c.Set(define.ANNOTATIONRESPONSE,response.JSONData("success"))
 	return
-
-
 }

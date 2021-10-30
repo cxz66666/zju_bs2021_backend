@@ -2,6 +2,7 @@ package handler
 
 import (
 	"annotation/handler/ping"
+	"annotation/handler/tag"
 	"annotation/handler/token"
 	"annotation/handler/user"
 	"annotation/middlware"
@@ -30,7 +31,7 @@ func InitRouter() *gin.Engine {
 	userMod:=api.Group("/user")
 	{
 		userMod.GET("/me",middlware.AuthenticationMiddleware(),middlware.StaffOnly(), user.GetInfo)
-		userMod.POST("/me",user.CreateUser)
+		userMod.POST("/register",user.CreateUser)
 		userMod.PUT("/me",middlware.AuthenticationMiddleware(),middlware.StaffOnly(),user.ModifyInfo)
 	}
 
@@ -41,6 +42,17 @@ func InitRouter() *gin.Engine {
 		tokenMod.POST("/refresh", middlware.AuthenticationMiddleware(),middlware.StaffOnly(), token.Refresh)
 
 	}
+
+	tagMod:=api.Group("/class").Use(middlware.AuthenticationMiddleware(),middlware.StaffOnly())
+	{
+		tagMod.GET("/list",tag.GetClass)
+		tagMod.POST("/create",tag.CreateClass)
+		tagMod.PUT("/update",tag.UpdateClass)
+		tagMod.DELETE("/delete",middlware.AdminOnly(), tag.DeleteClass)
+		tagMod.POST("/tag/create",tag.CreateTag)
+		tagMod.DELETE("/tag/delete",tag.DeleteTag)
+	}
+
 
 
 

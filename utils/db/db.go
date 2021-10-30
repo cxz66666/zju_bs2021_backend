@@ -1,6 +1,7 @@
 package db
 
 import (
+	"annotation/model/tag"
 	"annotation/model/user"
 	"annotation/utils/setting"
 	"fmt"
@@ -58,6 +59,8 @@ func Setup() {
 	// MysqlDB.AutoMigrate(&subscription.Order{})
 	// MysqlDB.AutoMigrate(&notice.Notice{})
 	MysqlDB.AutoMigrate(&user.User{})
+	MysqlDB.AutoMigrate(&tag.Tag{})
+	MysqlDB.AutoMigrate(&tag.Class{})
 
 }
 

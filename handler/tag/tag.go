@@ -6,6 +6,7 @@ import (
 	"annotation/service/tag_service"
 	"annotation/service/user_service"
 	"annotation/utils/authUtils"
+	"annotation/utils/logging"
 	"annotation/utils/response"
 	"github.com/gin-gonic/gin"
 	"strconv"
@@ -46,8 +47,7 @@ func GetClass(c *gin.Context) {
 		c.Abort()
 		return
 	}
-	var classInfoResp []tag.ClassInfoResp
-
+	classInfoResp:=make([]tag.ClassInfoResp,0,len(classes))
 
 	for _,m:=range classes{
 		user:=user_service.QueryUserById(m.CreatorId)
@@ -62,6 +62,7 @@ func GetClass(c *gin.Context) {
 			Description: m.Description,
 			CreatorName: name,
 			Tags: m.Tags,
+			CreateTime: m.CreateTime,
 		})
 	}
 
@@ -94,7 +95,7 @@ func CreateClass(c *gin.Context)  {
 	//将post过来的tag模型转为数据库使用的tag.Tag模型
 	for _,m:=range createClass.Tags{
 		tags = append(tags, tag.Tag{
-			Content: m.Content,
+			Content:m,
 		})
 	}
 	//TODO 检查这玩意能不能使用
@@ -117,5 +118,106 @@ func CreateClass(c *gin.Context)  {
 }
 
 func UpdateClass(c *gin.Context)  {
-	
+	updateClass:=tag.ClassUpdateReq{}
+	if err:=c.ShouldBind(&updateClass);err!=nil{
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
+		c.Abort()
+		return
+	}
+
+	oldClass,err:=tag_service.QueryClassById(updateClass.Id)
+	if oldClass.Id<=0 {
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg("未找到该id"))
+		c.Abort()
+		return
+	}
+	if err!=nil{
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
+		c.Abort()
+		return
+	}
+
+	if len(updateClass.ClassName)>0{
+		oldClass.ClassName=updateClass.ClassName
+	}
+
+	if len(updateClass.Description)>0{
+		oldClass.Description=updateClass.Description
+	}
+
+
+	err=tag_service.UpdateClass(oldClass)
+	if err!=nil{
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
+		c.Abort()
+		return
+	}
+
+	c.Set(define.ANNOTATIONRESPONSE,response.JSONData("success"))
+	return
+
+}
+
+func DeleteClass(c *gin.Context)  {
+	deleteClass:=tag.ClassDeleteReq{}
+	if err:=c.ShouldBind(&deleteClass);err!=nil{
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
+		c.Abort()
+		return
+	}
+
+	err:=tag_service.DeleteClass(deleteClass.Id)
+	if err!=nil{
+		logging.Error("删除class时出现问题")
+
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
+		c.Abort()
+		return
+	}
+	c.Set(define.ANNOTATIONRESPONSE,response.JSONData("success"))
+	return
+}
+
+func CreateTag(c *gin.Context)  {
+	createTag:=tag.TagCreateReq{}
+	if err:=c.ShouldBind(&createTag);err!=nil{
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
+		c.Abort()
+		return
+	}
+
+	err:=tag_service.CreateTag(&tag.Tag{
+		ClassId: createTag.ClassId,
+		Content: createTag.Content,
+	})
+
+	if err!=nil{
+		logging.Error("创建tag时出现问题")
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
+		c.Abort()
+		return
+	}
+
+	c.Set(define.ANNOTATIONRESPONSE,response.JSONData("success"))
+	return
+}
+
+func DeleteTag(c *gin.Context)  {
+	deleteTag:=tag.DeleteTagReq{}
+	if err:=c.ShouldBind(&deleteTag);err!=nil{
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
+		c.Abort()
+		return
+	}
+
+	err:=tag_service.DeleteTag(deleteTag.TagId)
+	if err!=nil {
+		logging.Error("删除tag时出现问题")
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
+		c.Abort()
+		return
+	}
+
+	c.Set(define.ANNOTATIONRESPONSE,response.JSONData("success"))
+	return
 }
