@@ -29,6 +29,28 @@ func QueryUserByEmail(email string) user.User {
 	return *res
 }
 
+func QueryUserByName(name string) user.User {
+
+	//email to uid
+	uid:=cache.GetOrCreate(cache.GetKey(cache.NameToId,name), func() interface{} {
+		return Name2Id(name)
+	}).(int)
+
+	res:=cache.GetOrCreate(cache.GetKey(cache.UserInfo,uid), func() interface{} {
+		cacheUser,err:=GetUserById(uid)
+		if err!=nil{
+			logging.InfoF("a error occur in query user: %v\n",err)
+			return &user.User{
+				UserId: -1,
+			}
+		}
+		return cacheUser
+	}).(*user.User)
+
+	return *res
+}
+
+
 // QueryUserById 根据Id查用户
 func QueryUserById(uid int) user.User {
 	res:=cache.GetOrCreate(cache.GetKey(cache.UserInfo,uid), func() interface{} {
@@ -84,6 +106,13 @@ func Email2Id(email string) int {
 	return user.UserId
 }
 
+func Name2Id(name string) int  {
+	user:=user.User{}
+	if err:=db.MysqlDB.First(&user,"user_name = ?",name).Error;err!=nil{
+		return -1
+	}
+	return user.UserId
+}
 
 
 

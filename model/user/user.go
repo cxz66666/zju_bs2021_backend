@@ -11,39 +11,42 @@ type User struct {
 }
 
 type UserInfoResp struct {
-	ID     int    `json:"user_id"`
-	Name   string `json:"user_name"`
-	Email  string `json:"user_email"`
-	Type   Role    `json:"user_type"`
-	Phone  string `json:"user_phone"`
+	ID     int    `json:"userId"`
+	Name   string `json:"userName"`
+	Email  string `json:"userEmail"`
+	Type   Role    `json:"userType"`
+	Phone  string `json:"userPhone"`
 }
 
 type UserModifyReq struct {
-	ModifyField string `json:"modify_field" binding:"required"`
-	UserName  string `json:"user_name"`
-	UserEmail  string `json:"user_email"`
-	UserType  Role   `json:"user_type"`
-	UserPhone string `json:"user_phone"`
+	ModifyField string `json:"modifyField" binding:"required"`
+	UserName  string `json:"userName"`
+	UserEmail  string `json:"userEmail"`
+	UserType  Role   `json:"userType"`
+	UserPhone string `json:"userPhone"`
 }
 
 type UserCreateReq struct {
-	UserName  string `json:"user_name" form:"user_name" binding:"required,max=30"`
-	UserEmail string `json:"user_email" form:"user_email" binding:"required,max=30"`
-	UserSecret string `json:"user_secret" form:"user_secret" binding:"required,max=20"`
-	UserPhone string `json:"user_phone" form:"user_phone" binding:"required,max=20"`
+	UserName  string `json:"userName" form:"userName" binding:"required,max=30"`
+	UserEmail string `json:"userEmail" form:"userEmail" binding:"required,max=30"`
+	UserSecret string `json:"userSecret" form:"userSecret" binding:"required,max=20"`
+	UserPhone string `json:"userPhone" form:"userPhone" binding:"required,max=20"`
 }
 
 
 type AuthReq struct {
-	Email  string `json:"email" form:"email" binding:"required"`
+	Type string `json:"type" binding:"required,oneof=account email"`
+	Account string `json:"account" `
+	Email  string `json:"email" form:"email"`
 	Secret string `json:"secret" form:"secret" binding:"required"`
 }
 
 type AuthResq struct {
-	UserName  string `json:"user_name"`
-	UserEmail  string `json:"user_email"`
-	UserType  Role   `json:"user_type"`
-	UserToken string `json:"user_token"`
+	UserName  string `json:"userName"`
+	UserEmail  string `json:"userEmail"`
+	UserType  Role   `json:"userType"`
+	UserToken string `json:"userToken"`
+	LoginType string `json:"loginType"`
 }
 
 

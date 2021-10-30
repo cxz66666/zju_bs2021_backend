@@ -12,10 +12,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+
 func Login(c *gin.Context){
 	//从请求中获取账号密码
 	var userAuth user.AuthReq
 	if  err:=c.ShouldBind(&userAuth);err!=nil{
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONError(response.ERROR_PARAM_FAIL))
+		c.Abort()
+		return
+	}
+
+	if (userAuth.Type=="email"&&len(userAuth.Email)==0)||userAuth.Type=="account"&&len(userAuth.Account)==0 {
 		c.Set(define.ANNOTATIONRESPONSE,response.JSONError(response.ERROR_PARAM_FAIL))
 		c.Abort()
 		return
@@ -37,7 +44,7 @@ func Login(c *gin.Context){
 				UserEmail: setting.AdminSetting.Email,
 				UserName:  setting.AdminSetting.Name,
 				UserType:  user.SysAdmin,
-			},adminToken)))
+			},adminToken,userAuth.Type)))
 			return
 		} else {
 			c.Set(define.ANNOTATIONRESPONSE,response.JSONError(response.ERROR_NOT_ADMIN))
@@ -49,7 +56,13 @@ func Login(c *gin.Context){
 	secret:=crypto.Password2Secret(userAuth.Secret)
 
 	//根据 account（stuid）查找用户
-	queryUser := user_service.QueryUserByEmail(userAuth.Email)
+	var queryUser user.User
+	if userAuth.Type=="email" {
+		queryUser = user_service.QueryUserByEmail(userAuth.Email)
+	} else {
+		queryUser = user_service.QueryUserByName(userAuth.Account)
+
+	}
 
 	//账号不存在
 	if queryUser.UserId ==0 {
@@ -66,7 +79,7 @@ func Login(c *gin.Context){
 			c.Abort()
 		} else {
 			c.SetCookie(define.ANNOTATIONTOKEN,"Bearer "+jwt,int(setting.ServerSetting.JwtExpireTime.Seconds()),"/","",false,true)
-			c.Set(define.ANNOTATIONRESPONSE,response.JSONData(user_service.NewLoginResp(queryUser,jwt)))
+			c.Set(define.ANNOTATIONRESPONSE,response.JSONData(user_service.NewLoginResp(queryUser,jwt,userAuth.Type)))
 		}
 	}else{
 		c.Set(define.ANNOTATIONRESPONSE,response.JSONError(response.ERROR_PASSWORD))
@@ -89,6 +102,6 @@ func Refresh(c *gin.Context)  {
 		token,_=authUtils.GetStudentToken(policy.ConvertToUser())
 	}
 	c.SetCookie(define.ANNOTATIONTOKEN,"Bearer "+token,int(setting.ServerSetting.JwtExpireTime.Seconds()),"/","",false,true)
-	c.Set(define.ANNOTATIONRESPONSE,response.JSONData(user_service.NewLoginResp(policy.ConvertToUser(),token)))
+	c.Set(define.ANNOTATIONRESPONSE,response.JSONData(user_service.NewLoginResp(policy.ConvertToUser(),token,"email")))
 	return
 }

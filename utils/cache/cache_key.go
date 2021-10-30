@@ -10,6 +10,7 @@ type CacheType uint8
 const (
 	UserInfo CacheType =iota
 	EmailToId
+	NameToId
 	SubScription
 )
 
