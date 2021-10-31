@@ -48,7 +48,7 @@ func InitRouter() *gin.Engine {
 		tagMod.GET("/list",tag.GetClass)
 		tagMod.POST("/create",tag.CreateClass)
 		tagMod.PUT("/update",tag.UpdateClass)
-		tagMod.DELETE("/delete",middlware.AdminOnly(), tag.DeleteClass)
+		tagMod.DELETE("/delete",tag.DeleteClass)
 		tagMod.POST("/tag/create",tag.CreateTag)
 		tagMod.DELETE("/tag/delete",tag.DeleteTag)
 	}

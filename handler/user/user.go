@@ -124,13 +124,30 @@ func CreateUser(c *gin.Context)  {
 
 	userCreate.UserSecret=crypto.Password2Secret(userCreate.UserSecret)
 
-	if err:=user_service.CreateUser(&userCreate);err!=nil{
+	us:=user.User{
+		UserName: userCreate.UserName,
+		UserPhone: userCreate.UserPhone,
+		UserEmail: userCreate.UserEmail,
+		UserSecret: userCreate.UserSecret,
+		UserType: user.Staff,
+	}
+
+	if err:=user_service.CreateUser(&us);err!=nil{
 		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
 		c.Abort()
 		return
 	}
 
 	logging.InfoF("create a new user: %v\n",userCreate)
+
+
+	jwt, err := authUtils.GetStudentToken(us)
+	if err != nil{
+		logging.ErrorF("generate token error for user:%+v\n",us)
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONError(response.ERROR_TOKEN_GENERATE_FAIL))
+		c.Abort()
+	}
+	c.SetCookie(define.ANNOTATIONTOKEN,"Bearer "+jwt,int(setting.ServerSetting.JwtExpireTime.Seconds()),"/","",false,true)
 
 	c.Set(define.ANNOTATIONRESPONSE,response.JSONData("success"))
 	return

@@ -9,12 +9,13 @@ import (
 
 
 // QueryClass 根据pageSize和current 进行查询，由于各种原因 无法进行缓存
-func QueryClass(pageSize,current int) ([]tag.Class,error)  {
+func QueryClass(pageSize,current int) ([]tag.Class,int,error)  {
 	var ans []tag.Class
-	if err:=db.MysqlDB.Offset((current-1)*pageSize).Limit(pageSize).Preload("Tags").Order("id desc").Find(&ans).Error;err!=nil{
-		return nil,err
+	var total int64
+	if err:=db.MysqlDB.Model(&tag.Class{}).Count(&total).Offset((current-1)*pageSize).Limit(pageSize).Preload("Tags").Order("id desc").Find(&ans).Error;err!=nil{
+		return nil,0,err
 	}
-	return ans,nil
+	return ans,int(total),nil
 }
 
 // QueryClassById 根据id查询class

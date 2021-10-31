@@ -5,6 +5,7 @@ import (
 	"annotation/utils/cache"
 	"annotation/utils/db"
 	"annotation/utils/logging"
+	"annotation/utils/setting"
 	"regexp"
 )
 
@@ -53,6 +54,14 @@ func QueryUserByName(name string) user.User {
 
 // QueryUserById 根据Id查用户
 func QueryUserById(uid int) user.User {
+	if uid==setting.AdminSetting.UserId {
+		return user.User{
+			UserId: setting.AdminSetting.UserId,
+			UserName:  setting.AdminSetting.Name,
+			UserEmail: setting.AdminSetting.Email,
+			UserType: user.SysAdmin,
+		}
+	}
 	res:=cache.GetOrCreate(cache.GetKey(cache.UserInfo,uid), func() interface{} {
 		cacheUser,err:=GetUserById(uid)
 		if err!=nil{
@@ -67,16 +76,9 @@ func QueryUserById(uid int) user.User {
 }
 
 // CreateUser 创建用户
-func CreateUser(userCreate *user.UserCreateReq) error {
-	us:=user.User{
-		UserName: userCreate.UserName,
-		UserPhone: userCreate.UserPhone,
-		UserEmail: userCreate.UserEmail,
-		UserSecret: userCreate.UserSecret,
-		UserType: user.Staff,
-	}
+func CreateUser(us *user.User) error {
 
-	if err:=db.MysqlDB.Create(&us).Error;err!=nil{
+	if err:=db.MysqlDB.Create(us).Error;err!=nil{
 		return err
 	}
 	return nil

@@ -5,6 +5,7 @@ Package setting is used to parse the conf/app.ini and store the variable in the 
 */
 
 import (
+	"fmt"
 	"github.com/go-ini/ini"
 	"path/filepath"
 
@@ -71,6 +72,14 @@ type Secret struct {
 }
 var SecretSetting = &Secret{}
 
+type Upload struct {
+	Type string
+	BackendPath string
+	Region string
+	AccessKeyId string
+	AccessKeySecret string
+	Bucket string
+}
 
 // Setup init the setting struct, so before you use them, please
 // use setting.Setup() to init them (only need once in the lifetime)
@@ -118,6 +127,11 @@ func Setup()  {
 	err=Cfg.Section("secret").MapTo(SecretSetting)
 	if err!=nil	{
 		log.Fatalf("Fail to parse 'SecretSetting': %v", err)
+	}
+	Cfg.Section("upload").Key("Type").SetValue("测试")
+	err= Cfg.SaveTo("conf/app.ini")
+	if err!=nil{
+		fmt.Println(err)
 	}
 
 	/* 	you can use the following code to get env from docker

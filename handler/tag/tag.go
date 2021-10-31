@@ -41,7 +41,7 @@ func GetClass(c *gin.Context) {
 			current=int(currentInt)
 		}
 	}
-	classes,err:=tag_service.QueryClass(pageSize,current)
+	classes,total,err:=tag_service.QueryClass(pageSize,current)
 	if err!=nil{
 		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
 		c.Abort()
@@ -67,8 +67,10 @@ func GetClass(c *gin.Context) {
 	}
 
 	c.Set(define.ANNOTATIONRESPONSE,response.JSONData(gin.H{
+		"success":true,
+		"total":total,
 		"number":len(classInfoResp),
-		"classes":classInfoResp,
+		"data":classInfoResp,
 	}))
 
 	return
