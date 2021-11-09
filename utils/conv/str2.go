@@ -12,6 +12,7 @@ func Int32_2str(a int32)string{
 func Int2Str(a int) string{
 	return strconv.Itoa(a)
 }
+
 func Int64_2str(a int64)string{
 	string := strconv.Itoa(int(a))
 	return string

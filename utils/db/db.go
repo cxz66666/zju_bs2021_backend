@@ -1,7 +1,9 @@
 package db
 
 import (
+	"annotation/model/project"
 	"annotation/model/tag"
+	"annotation/model/upload"
 	"annotation/model/user"
 	"annotation/utils/setting"
 	"fmt"
@@ -61,6 +63,7 @@ func Setup() {
 	MysqlDB.AutoMigrate(&user.User{})
 	MysqlDB.AutoMigrate(&tag.Tag{})
 	MysqlDB.AutoMigrate(&tag.Class{})
-
+	MysqlDB.AutoMigrate(&upload.Image{})
+	MysqlDB.AutoMigrate(&project.Annotation{},&project.Project{})
 }
 

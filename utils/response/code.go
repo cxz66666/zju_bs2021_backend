@@ -21,6 +21,7 @@ const (
 
 	ERROR_DATABASE_QUERY Code = 20000// 数据库内部错误
 
+	ERROR_UPLOAD_NOT_ID Code = 30001 //上传时未带上id
 	//to be continue ....
 
 	ERROR_DEFAULT Code= 30000 //未知错误

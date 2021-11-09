@@ -4,6 +4,7 @@ import (
 	"annotation/handler/ping"
 	"annotation/handler/tag"
 	"annotation/handler/token"
+	"annotation/handler/upload"
 	"annotation/handler/user"
 	"annotation/middlware"
 	"annotation/utils/setting"
@@ -53,7 +54,10 @@ func InitRouter() *gin.Engine {
 		tagMod.DELETE("/tag/delete",tag.DeleteTag)
 	}
 
-
+	uploadMod:=api.Group("/upload").Use(middlware.AuthenticationMiddleware(),middlware.StaffOnly())
+	{
+		uploadMod.POST("/image",upload.UploadImage)
+	}
 
 
 	return r

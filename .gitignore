@@ -18,3 +18,5 @@ runtime/
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+conf/app.ini
+test/
