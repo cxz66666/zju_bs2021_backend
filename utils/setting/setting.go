@@ -135,11 +135,7 @@ func Setup()  {
 	if err!=nil	{
 		log.Fatalf("Fail to parse 'SecretSetting': %v", err)
 	}
-	Cfg.Section("upload").Key("Type").SetValue("测试")
-	err= Cfg.SaveTo("conf/app.ini")
-	if err!=nil{
-		fmt.Println(err)
-	}
+
 
 	/* 	you can use the following code to get env from docker
 
@@ -151,7 +147,6 @@ func Setup()  {
 	if err!=nil	{
 		log.Fatalf("Fail to parse 'UploadSetting': %v", err)
 	}
-	UploadSetting.BackendPath=filepath.FromSlash(UploadSetting.BackendPath)
 
 	if UploadSetting.Type==upload.Backend{
 		fmt.Println("您正在使用backend存储")
@@ -161,7 +156,7 @@ func Setup()  {
 			log.Fatalf(err.Error())
 		}
 	} else {
-		log.Fatalf("您的upload type设置错误，请设置为0：本地存储，1：oss存储")
+		log.Fatalf("您的upload type设置错误，请设置为1：本地存储，2：oss存储")
 	}
 }
 
@@ -172,7 +167,7 @@ func SaveUploadSetting() error {
 	if err!=nil{
 		log.Fatalf("Fail to parse `conf/app.ini` : %v",err)
 	}
-	Cfg.Section("upload").Key("Type").SetValue( stringu.Tostring(UploadSetting.Type))
+	Cfg.Section("upload").Key("Type").SetValue( stringu.Tostring(int(UploadSetting.Type)))
 	Cfg.Section("upload").Key("BackendPath").SetValue(UploadSetting.BackendPath)
 	Cfg.Section("upload").Key("Region").SetValue(UploadSetting.Region)
 	Cfg.Section("upload").Key("AccessKeyId").SetValue(UploadSetting.AccessKeyId)

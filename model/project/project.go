@@ -10,7 +10,7 @@ import (
 type ProjectType int
 
 const (
-	Pcreated ProjectType=iota
+	Pcreated ProjectType=iota+1
 	Pworking
 	PpendingReview
 	Paccept
@@ -36,3 +36,14 @@ type Project struct {
 
 	Type ProjectType `json:"type"`
 }
+
+type ProjectCreateReq struct {
+	Name string `json:"name" binding:"required,size:20"`
+	Description string `json:"description" binding:"required,size:50"`
+	ClassId int `json:"classId" binding:"required"`
+}
+
+type ProjectCreateResp struct {
+	Id int `json:"id"`
+}
+

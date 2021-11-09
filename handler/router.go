@@ -59,6 +59,11 @@ func InitRouter() *gin.Engine {
 		uploadMod.POST("/image",upload.UploadImage)
 	}
 
+	settingMod:=api.Group("/setting").Use(middlware.AuthenticationMiddleware(),middlware.AdminOnly())
+	{
+		settingMod.GET("/setting",upload.GetSetting)
+		settingMod.PUT("/setting",upload.UpdateSetting)
+	}
 
 	return r
 }

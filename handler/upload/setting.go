@@ -12,7 +12,9 @@ import (
 
 // GetSetting 返回当前的配置
 func GetSetting(c *gin.Context)  {
-	c.Set(define.ANNOTATIONRESPONSE,response.JSONData(setting.UploadSetting))
+	res:=setting.UploadSetting
+
+	c.Set(define.ANNOTATIONRESPONSE,response.JSONData(res))
 	return
 }
 
@@ -57,6 +59,7 @@ func UpdateSetting(c *gin.Context){
 			c.Abort()
 			return
 		}
+
 	}
 	setting.SaveUploadSetting()
 

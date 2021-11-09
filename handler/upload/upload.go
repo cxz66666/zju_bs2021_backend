@@ -8,6 +8,8 @@ import (
 	"annotation/utils/numberu"
 	"annotation/utils/response"
 	"github.com/gin-gonic/gin"
+	"mime/multipart"
+	"sync"
 )
 
 
@@ -35,13 +37,25 @@ func UploadImage(c *gin.Context)  {
 
 	errs:=make([]string,0,0)
 	count:=0
+	var wg sync.WaitGroup
+	wg.Add(len(files))
+	chans:=make(chan error,len(files))
 	for _,file:=range files{
-		err=upload_service.SaveUploadedImage(projectId,userId,file)
+		go func(localfile  *multipart.FileHeader) {
+			chans<- upload_service.SaveUploadedImage(projectId,userId,localfile)
+		}(file)
+	}
+	total:=0
+	for err	=range chans{
+		total++
 		if err!=nil{
 			logging.Info(err)
 			errs = append(errs, err.Error())
 		} else {
 			count++
+		}
+		if total==len(files){
+			close(chans)
 		}
 	}
 	c.Set(define.ANNOTATIONRESPONSE,response.JSONData(gin.H{
@@ -49,6 +63,8 @@ func UploadImage(c *gin.Context)  {
 		"errs":errs,
 	}))
 }
+
+
 
 
 // UploadVideo 用于上传视频

@@ -21,7 +21,7 @@ type Image struct {
 	// KB
 	//Size int `json:"size"`
 	Type StoreType `json:"type"`
-	StorePath string `json:"storePath" gorm:"size:90"`
+	StorePath string `json:"storePath" gorm:"size:150"`
 	Creator user.User `json:"creator" gorm:"foreignKey:CreatorId;references:UserId"`
 	CreatorId int `json:"creatorId" `
 	UploadTime time.Time `json:"uploadTime"`
