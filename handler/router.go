@@ -2,6 +2,7 @@ package handler
 
 import (
 	"annotation/handler/ping"
+	"annotation/handler/project"
 	"annotation/handler/tag"
 	"annotation/handler/token"
 	"annotation/handler/upload"
@@ -63,6 +64,13 @@ func InitRouter() *gin.Engine {
 	{
 		settingMod.GET("/setting",upload.GetSetting)
 		settingMod.PUT("/setting",upload.UpdateSetting)
+	}
+
+	projectMod:=api.Group("/project").Use(middlware.AuthenticationMiddleware(),middlware.StaffOnly())
+	{
+		projectMod.POST("/new",middlware.AdminOnly(),project.CreateProject)
+		projectMod.GET("/list",project.ListProject)
+		projectMod.GET("/:id",project.GetProject)
 	}
 
 	return r

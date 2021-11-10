@@ -47,3 +47,14 @@ type ProjectCreateResp struct {
 	Id int `json:"id"`
 }
 
+type ProjectListResp struct {
+
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Description string `json:"description"`
+	ClassName string `json:"className"`
+	ImagesNum int `json:"imagesNum"`
+	Type ProjectType `json:"type"`
+	CreatedTime time.Time `json:"createdTime"`
+
+}
