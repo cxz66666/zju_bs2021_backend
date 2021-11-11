@@ -19,11 +19,9 @@ type UserInfoResp struct {
 }
 
 type UserModifyReq struct {
-	ModifyField string `json:"modifyField" binding:"required"`
-	UserName  string `json:"userName"`
-	UserEmail  string `json:"userEmail"`
-	UserType  Role   `json:"userType"`
-	UserPhone string `json:"userPhone"`
+	UserName  string `json:"userName" binding:"required"`
+	UserEmail  string `json:"userEmail" binding:"required"`
+	UserPhone string `json:"userPhone" binding:"required"`
 }
 
 type UserCreateReq struct {
@@ -33,6 +31,14 @@ type UserCreateReq struct {
 	UserPhone string `json:"userPhone" form:"userPhone" binding:"required,max=20"`
 }
 
+type UserDeleteReq struct {
+	ID int `json:"id" binding:"required"`
+}
+
+type UserChangeRoleReq struct {
+	ID int `json:"userId" binding:"required"`
+	Type Role `json:"userType" binding:"required"`
+}
 
 type AuthReq struct {
 	Type string `json:"type" binding:"required,oneof=account email"`

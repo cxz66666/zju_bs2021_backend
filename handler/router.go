@@ -36,7 +36,13 @@ func InitRouter() *gin.Engine {
 		userMod.POST("/register",user.CreateUser)
 		userMod.PUT("/me",middlware.AuthenticationMiddleware(),middlware.StaffOnly(),user.ModifyInfo)
 	}
-
+	usersMod:=api.Group("/users").Use(middlware.AuthenticationMiddleware(),middlware.SysAdminOnly())
+	{
+		usersMod.GET("/list",user.GetUsers)
+		usersMod.DELETE("/user",user.DeleteUsers)
+		usersMod.PUT("/role",user.ChangeUserRole)
+		usersMod.GET("/num",user.GetNum)
+	}
 	tokenMod:=api.Group("/token")
 	{
 		tokenMod.POST("/login", token.Login)

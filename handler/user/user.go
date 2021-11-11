@@ -10,7 +10,6 @@ import (
 	"annotation/utils/response"
 	"annotation/utils/setting"
 	"github.com/gin-gonic/gin"
-	"strings"
 )
 
 func GetInfo(c *gin.Context) {
@@ -80,18 +79,10 @@ func ModifyInfo	(c *gin.Context)  {
 		return
 	}
 
-	if strings.Contains(req.ModifyField, "name") {
 		userRec.UserName = req.UserName
-	}
-	if strings.Contains(req.ModifyField, "email") {
 		userRec.UserEmail = req.UserEmail
-	}
-	if strings.Contains(req.ModifyField, "type") {
-		userRec.UserType = req.UserType
-	}
-	if strings.Contains(req.ModifyField, "phone") {
 		userRec.UserPhone = req.UserPhone
-	}
+
 	err:=user_service.UpdateUser(userRec)
 
 	if err!=nil{
