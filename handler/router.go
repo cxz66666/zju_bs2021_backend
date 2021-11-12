@@ -79,5 +79,10 @@ func InitRouter() *gin.Engine {
 		projectMod.GET("/:id",project.GetProject)
 	}
 
+	imageMod:=api.Group("/image")
+	{
+		imageMod.GET("/:pid/:crc32/*name",upload.GetImage)
+	}
+
 	return r
 }

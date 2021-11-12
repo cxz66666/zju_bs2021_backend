@@ -19,6 +19,7 @@ var MsgFlags =map[Code]string{
 	ERROR_ADMIN_INVALID_PASSWORD: "管理员密码错误",
 	ERROR_NOT_VALID_USER_PARAM: "用户创建参数不合法",
 	ERROR_UPLOAD_NOT_ID:		"上传图片时id为空",
+	ERROR_UPLOAD_NOT_IMAGE:		"上传时没有图片",
 }
 
 func GetMsg(code Code) string {

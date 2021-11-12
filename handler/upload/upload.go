@@ -27,13 +27,24 @@ func UploadImage(c *gin.Context)  {
 	}
 
 	files:=form.File["images"]
-	projectIdSlice:=form.Value["id"]
-	if len(projectIdSlice)==0||len(projectIdSlice)>1{
+	if len(files)==0 {
 		c.Set(define.ANNOTATIONRESPONSE,response.JSONError(response.ERROR_UPLOAD_NOT_ID))
 		c.Abort()
 		return
 	}
-	projectId:=numberu.ToInt(projectIdSlice[0])
+	projectIdSlice:=form.Value["id"]
+	if len(projectIdSlice)>1{
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONError(response.ERROR_UPLOAD_NOT_ID))
+		c.Abort()
+		return
+	}
+	var projectId int
+	if len(projectIdSlice)>0{
+		projectId=numberu.ToInt(projectIdSlice[0])
+	} else {
+		projectId=0
+	}
+
 
 	errs:=make([]string,0,0)
 	count:=0

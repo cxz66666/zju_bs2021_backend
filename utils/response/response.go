@@ -33,6 +33,9 @@ func (r *Response) Write(c *gin.Context) {
 		c.Redirect(r.RedirectCode, r.RedirectURL)
 	case TypeFailed:
 		c.Status(r.FailedCode)
+
+	case TypeImage:
+		c.File(r.FileName)
 	}
 }
 
