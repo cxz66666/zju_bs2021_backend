@@ -69,3 +69,7 @@ func GetImage(c *gin.Context)  {
 		return
 	}
 }
+
+func ListImage(c *gin.Context)  {
+
+}

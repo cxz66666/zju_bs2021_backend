@@ -104,6 +104,8 @@ func SaveUploadedImage(id int, userId int, file *multipart.FileHeader) error {
 }
 
 func SaveImage(image *upload.Image) error {
+	db.MysqlDB.Where("project_id = ? and crc32_hash = ? and name = ?",image.ProjectId,image.Crc32Hash,image.Name).Delete(&upload.Image{})
+
 	if err:=db.MysqlDB.Create(image).Error;err!=nil{
 		return err
 	}

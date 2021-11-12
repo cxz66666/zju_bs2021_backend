@@ -2,6 +2,7 @@ package upload
 
 import (
 	"annotation/model/user"
+	"fmt"
 	"time"
 )
 
@@ -27,9 +28,23 @@ type Image struct {
 	UploadTime time.Time `json:"uploadTime"`
 }
 
+
+type ImageResp struct {
+	Id int `json:"id"`
+	Name string `json:"name"`
+	ProjectId int `json:"projectId"`
+	Type StoreType `json:"type"`
+	Url string `json:"url"`
+	CreatorId int `json:"creatorId"`
+	CreatorName string `json:"creatorName"`
+	UploadTime time.Time `json:"uploadTime"`
+}
+
+
+
 func (image *Image) GetUrl() string {
 	if image.Type==Backend {
-		return image.StorePath
+		return fmt.Sprintf("/api/image/%d/%d/%s",image.ProjectId,image.Crc32Hash,image.Name)
 	} else if image.Type==OSS{
 		return image.StorePath
 	} else {

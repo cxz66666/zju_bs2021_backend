@@ -17,7 +17,12 @@ func GetSize(f multipart.File) (int,error) {
 // CheckExist accept a src path, and return true if file exist, return false if it doesn't
 func CheckExist(src string) bool {
 	_,err:=os.Stat(src)
-	return os.IsExist(err)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false
+		}
+	}
+	return true
 }
 
 // CheckPermission accept a src path, and return true if we don't have the permission to this file
