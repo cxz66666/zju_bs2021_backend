@@ -71,5 +71,62 @@ func GetImage(c *gin.Context)  {
 }
 
 func ListImage(c *gin.Context)  {
+	pageSizeStr:=c.Query("pageSize")
+	currentStr:=c.Query("current")
 
+	var pageSize,current int
+	if len(pageSizeStr)==0 {
+		pageSize=20
+	} else {
+		if pageSizeInt,err:=strconv.ParseInt(pageSizeStr,10,64);err!=nil{
+			c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg("pageSize解析错误"))
+			c.Abort()
+			return
+		} else {
+			pageSize=int(pageSizeInt)
+		}
+	}
+
+	if len(currentStr)==0{
+		current=1
+	} else {
+		if currentInt,err:=strconv.ParseInt(currentStr,10,64);err!=nil{
+			c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg("current解析错误"))
+			c.Abort()
+			return
+		} else {
+			current=int(currentInt)
+		}
+	}
+	images,total,err:=upload_service.QueryListImages(pageSize,current)
+	if err!=nil{
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
+		c.Abort()
+		return
+	}
+	imageInfoResp:=make([]upload.ImageResp,0,len(images))
+
+	for _,m:=range images{
+		name:=m.Creator.UserName
+		if len(name)==0{
+			name="未知者"
+		}
+		imageInfoResp = append(imageInfoResp, upload.ImageResp{
+			Id: m.Id,
+			Name: m.Name,
+			ProjectId: m.ProjectId,
+			Type: m.Type,
+			Url: m.GetUrl(),
+			CreatorId: m.CreatorId,
+			CreatorName: name,
+			UploadTime: m.UploadTime.Format("2006-01-02"),
+		})
+	}
+
+	c.Set(define.ANNOTATIONRESPONSE,response.JSONData(gin.H{
+		"total":total,
+		"number":len(imageInfoResp),
+		"data":imageInfoResp,
+	}))
+	return
 }

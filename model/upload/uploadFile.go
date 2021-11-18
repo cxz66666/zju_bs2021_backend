@@ -37,7 +37,7 @@ type ImageResp struct {
 	Url string `json:"url"`
 	CreatorId int `json:"creatorId"`
 	CreatorName string `json:"creatorName"`
-	UploadTime time.Time `json:"uploadTime"`
+	UploadTime string `json:"uploadTime"`
 }
 
 
