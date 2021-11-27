@@ -8,6 +8,7 @@ import (
 	"annotation/utils/authUtils"
 	"annotation/utils/logging"
 	"annotation/utils/response"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"strconv"
 	"time"
@@ -76,7 +77,26 @@ func GetClass(c *gin.Context) {
 	return
 
 }
+//GetAllClass 用于获取用来创建project的class
+func GetAllClass(c *gin.Context){
+	classes,err:=tag_service.QueryAllClass()
+	if err!=nil{
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
+		c.Abort()
+		return
+	}
+	classChooseResp:=make([]tag.ClassChooseResp,0,len(classes))
+	for _,m:=range classes {
+		name:=fmt.Sprintf("%s  id:%d",m.ClassName,m.Id)
+		classChooseResp = append(classChooseResp, tag.ClassChooseResp{
 
+			Label: name,
+			Value: m.Id,
+		})
+	}
+	c.Set(define.ANNOTATIONRESPONSE,response.JSONData(classChooseResp))
+	return
+}
 func CreateClass(c *gin.Context)  {
 
 	createClass:=tag.ClassCreateReq{}

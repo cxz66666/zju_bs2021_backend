@@ -25,7 +25,7 @@ func ListProject(pageSize, current int) ([]project.Project,int,error) {
 // QueryProjectById 根据id查询class
 func QueryProjectById(id int) (project.Project,error)  {
 	var ans project.Project
-	if err:=db.MysqlDB.First(&ans,id).Error;err!=nil{
+	if err:=db.MysqlDB.Preload(clause.Associations).First(&ans,id).Error;err!=nil{
 		return project.Project{},nil
 	}
 	return ans,nil

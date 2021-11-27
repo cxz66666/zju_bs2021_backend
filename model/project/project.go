@@ -38,9 +38,10 @@ type Project struct {
 }
 
 type ProjectCreateReq struct {
-	Name string `json:"name" binding:"required,size:20"`
-	Description string `json:"description" binding:"required,size:50"`
+	Name string `json:"name" binding:"required,max=20"`
+	Description string `json:"description" binding:"required,max=50"`
 	ClassId int `json:"classId" binding:"required"`
+	UserList []int `json:"userList" binding:"required"`
 }
 
 type ProjectCreateResp struct {
@@ -57,4 +58,9 @@ type ProjectListResp struct {
 	Type ProjectType `json:"type"`
 	CreatedTime time.Time `json:"createdTime"`
 
+}
+
+
+type ProjectChangeStatusReq struct {
+	Type ProjectType `json:"type" binding:"required"`
 }

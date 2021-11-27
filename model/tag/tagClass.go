@@ -58,3 +58,8 @@ type ClassUpdateReq struct {
 	ClassName string `json:"className" binding:"max=30"`
 	Description string `json:"description" binding:"max=40"`
 }
+
+type ClassChooseResp struct {
+	Label string  `json:"label"`
+	Value int 	  `json:"value"`
+}

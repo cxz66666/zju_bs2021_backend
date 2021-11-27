@@ -42,6 +42,8 @@ func InitRouter() *gin.Engine {
 		usersMod.DELETE("/user",user.DeleteUsers)
 		usersMod.PUT("/role",user.ChangeUserRole)
 		usersMod.GET("/num",user.GetNum)
+		usersMod.GET("/alluser",user.GetAllUser)
+
 	}
 	tokenMod:=api.Group("/token")
 	{
@@ -53,6 +55,7 @@ func InitRouter() *gin.Engine {
 
 	tagMod:=api.Group("/class").Use(middlware.AuthenticationMiddleware(),middlware.StaffOnly())
 	{
+		tagMod.GET("/allclass",tag.GetAllClass)
 		tagMod.GET("/list",tag.GetClass)
 		tagMod.POST("/create",tag.CreateClass)
 		tagMod.PUT("/update",tag.UpdateClass)

@@ -3,6 +3,7 @@ package project
 import (
 	"annotation/define"
 	"annotation/model/project"
+	"annotation/model/user"
 	"annotation/service/project_service"
 	"annotation/utils/authUtils"
 	"annotation/utils/response"
@@ -21,12 +22,18 @@ func CreateProject(c *gin.Context) {
 	}
 	claim,_:=c.Get(define.ANNOTATIONPOLICY)
 	userId:=claim.(authUtils.Policy).GetId()
-
+	workers:=make([]user.User,0,len(createReq.UserList))
+	for _,m:=range createReq.UserList{
+		workers = append(workers, user.User{
+			UserId:m,
+		})
+	}
 	nowProject:=project.Project{
 		Name: createReq.Name,
 		Description: createReq.Description,
 		CreatedTime: time.Now(),
 		CreatorId: userId,
+		Workers: workers,
 		Type: project.Pcreated,
 		ClassId: createReq.ClassId,
 	}
@@ -121,8 +128,28 @@ func GetProject(c *gin.Context)  {
 		return
 	}
 
-	c.Set(define.ANNOTATIONRESPONSE,p)
+	c.Set(define.ANNOTATIONRESPONSE,response.JSONData(p))
 
 	return
 }
 
+//ChangeStatus 更新项目当前状态
+func ChangeStatus(c *gin.Context)  {
+	idStr:=c.Param("id")
+	var id int
+	if idInt,err:=strconv.ParseInt(idStr,10,64);err!=nil{
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg("pageSize解析错误"))
+		c.Abort()
+		return
+	} else {
+		id=int(idInt)
+	}
+	cs:=project.ProjectChangeStatusReq{}
+	if err:=c.ShouldBind(&cs);err!=nil{
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
+		c.Abort()
+		return
+	}
+	err:=
+
+}

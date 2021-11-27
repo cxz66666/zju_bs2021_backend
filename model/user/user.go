@@ -18,6 +18,7 @@ type UserInfoResp struct {
 	Phone  string `json:"userPhone"`
 }
 
+
 type UserModifyReq struct {
 	UserName  string `json:"userName" binding:"required"`
 	UserEmail  string `json:"userEmail" binding:"required"`

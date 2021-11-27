@@ -14,6 +14,8 @@ func QueryUsers() ([]user.User,int,error) {
 	return ans,int(total),nil
 }
 
+
+
 func DeleteUser(id int) error {
 	if err:=db.MysqlDB.Delete(&user.User{},id).Error;err!=nil{
 		return err

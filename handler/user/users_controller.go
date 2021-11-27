@@ -84,3 +84,27 @@ func GetNum(c *gin.Context)  {
 	}))
 	return
 }
+
+// GetAllUser 相比query，少了总数，但是更加简洁，主要用于创建项目时使用
+func GetAllUser(c *gin.Context) {
+	users,_,err:=user_service.QueryUsers()
+	if err!=nil{
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
+		c.Abort()
+		return
+	}
+	userInfoResp:=make([]user.UserInfoResp,0,len(users))
+
+	for _,m:=range users{
+		userInfoResp = append(userInfoResp, user.UserInfoResp{
+			ID:m.UserId,
+			Name: m.UserName,
+			Email: m.UserEmail,
+			Type: m.UserType,
+			Phone: m.UserPhone,
+		} )
+	}
+
+	c.Set(define.ANNOTATIONRESPONSE,response.JSONData(userInfoResp))
+	return
+}

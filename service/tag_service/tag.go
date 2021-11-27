@@ -18,6 +18,15 @@ func QueryClass(pageSize,current int) ([]tag.Class,int,error)  {
 	return ans,int(total),nil
 }
 
+// QueryAllClass 获取所有class
+func QueryAllClass() ([]tag.Class,error)  {
+	var ans []tag.Class
+	if err:=db.MysqlDB.Model(&tag.Class{}).Order("id desc").Find(&ans).Error;err!=nil{
+		return nil,err
+	}
+	return ans,nil
+}
+
 // QueryClassById 根据id查询class
 func QueryClassById(classId int) (tag.Class,error)  {
 	var ans tag.Class
