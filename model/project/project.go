@@ -35,6 +35,8 @@ type Project struct {
 	CreatorId int
 
 	Type ProjectType `json:"type"`
+
+	AnnotationMap map[int]Annotation `json:"annotationMap" gorm:"-"`
 }
 
 type ProjectCreateReq struct {
@@ -63,4 +65,9 @@ type ProjectListResp struct {
 
 type ProjectChangeStatusReq struct {
 	Type ProjectType `json:"type" binding:"required"`
+}
+
+type ProjectAddPublicReq struct {
+	ImageId int `json:"imageId" binding:"required"`
+	ProjectId int `json:"projectId" binding:"required"`
 }

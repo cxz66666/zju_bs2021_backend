@@ -6,14 +6,14 @@ import (
 )
 
 type Class struct {
-	Id int  `gorm:"primaryKey"`
+	Id int  `json:"id" gorm:"primaryKey"`
 	ClassName string `json:"className" gorm:"size:30"`
 	Description string `json:"description" gorm:"size:40"`
 	Creator user.User `json:"creator" gorm:"foreignKey:CreatorId;references:UserId"`
 	CreatorId int `json:"creatorId" `
-	CreateTime time.Time
+	CreateTime time.Time `json:"createTime"`
 
-	Tags []Tag `gorm:"foreignKey:ClassId"`
+	Tags []Tag `json:"tags" gorm:"foreignKey:ClassId"`
 }
 
 

@@ -2,6 +2,7 @@ package project_service
 
 import (
 	"annotation/model/project"
+	"annotation/model/upload"
 	"annotation/utils/db"
 	"gorm.io/gorm/clause"
 )
@@ -25,8 +26,35 @@ func ListProject(pageSize, current int) ([]project.Project,int,error) {
 // QueryProjectById 根据id查询class
 func QueryProjectById(id int) (project.Project,error)  {
 	var ans project.Project
-	if err:=db.MysqlDB.Preload(clause.Associations).First(&ans,id).Error;err!=nil{
-		return project.Project{},nil
+	if err:=db.MysqlDB.Preload("Class.Tags").Preload("Annotations.Image").Preload(clause.Associations).First(&ans,id).Error;err!=nil{
+		return project.Project{},err
 	}
 	return ans,nil
+}
+
+
+//ChangeStatus 用于改变project的状态Type
+func ChangeStatus(id int,newType project.ProjectType) error {
+
+	if err:=db.MysqlDB.Model(&project.Project{
+		Id: id,
+	}).Update("type",newType).Error;err!=nil{
+		return err
+	}
+	return nil
+}
+//AddImageAssociation 用于添加公共图片到本项目
+func AddImageAssociation(pid int,imageId int) error  {
+	if err:=db.MysqlDB.Model(&project.Project{Id: pid}).Association("Images").Append(&upload.Image{Id: imageId});err!=nil{
+		return err
+	}
+	return nil
+}
+
+// AddNewAnnotation 创建新的标注，此时标注仍然是空，type为Acreated
+func AddNewAnnotation(pid int,newAnnotations []project.Annotation) error  {
+	if err:=db.MysqlDB.Model(&project.Project{Id: pid}).Association("Annotations").Append(newAnnotations);err!=nil{
+		return err
+	}
+	return nil
 }

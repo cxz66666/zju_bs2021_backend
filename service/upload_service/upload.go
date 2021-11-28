@@ -1,6 +1,7 @@
 package upload_service
 
 import (
+	"annotation/model/project"
 	"annotation/model/upload"
 	"annotation/utils/conv"
 	"annotation/utils/crypto"
@@ -27,7 +28,7 @@ func Contains(slice []string, s string) int {
 	}
 	return -1
 }
-func SaveUploadedImage(id int, userId int, file *multipart.FileHeader) error {
+func SaveUploadedImage(pid int, userId int, file *multipart.FileHeader) error {
 	//fmt.Println(file.Header)
 	var content=file.Header.Get("Content-Type")
 	if Contains(ImageTypes,content)==-1 {
@@ -48,7 +49,7 @@ func SaveUploadedImage(id int, userId int, file *multipart.FileHeader) error {
 	//filepath是文件夹地址，dst是整个路径
 
 	if setting.UploadSetting.Type==upload.Backend {
-		filePath:=filepath.FromSlash(setting.UploadSetting.BackendPath)+ string(filepath.Separator)+ conv.Int2Str(id)+string(filepath.Separator)
+		filePath:=filepath.FromSlash(setting.UploadSetting.BackendPath)+ string(filepath.Separator)+ conv.Int2Str(pid)+string(filepath.Separator)
 		fileSuffix := path.Ext(file.Filename) //获取文件后缀
 		filenameOnly:= strings.TrimSuffix(file.Filename, fileSuffix)//获取文件名
 		dst:=filePath+filenameOnly+"-"+conv.Int2Str(int(crc32))+fileSuffix
@@ -70,16 +71,16 @@ func SaveUploadedImage(id int, userId int, file *multipart.FileHeader) error {
 		image:=upload.Image{
 			Name: file.Filename,
 			Type: setting.UploadSetting.Type ,
-			ProjectId: id,
+			ProjectId: pid,
 			StorePath: dst,
 			Crc32Hash: crc32,
 			CreatorId: userId,
 			UploadTime: time.Now(),
 		}
 
-		return SaveImage(&image)
+		return SaveImage(pid,&image)
 	} else if setting.UploadSetting.Type==upload.OSS{
-		filePath:=setting.UploadSetting.OSSPath+"/"+ conv.Int2Str(id)+"/"
+		filePath:=setting.UploadSetting.OSSPath+"/"+ conv.Int2Str(pid)+"/"
 		fileSuffix := path.Ext(file.Filename) //获取文件后缀
 		filenameOnly:= strings.TrimSuffix(file.Filename, fileSuffix)//获取文件名
 		dst:=filePath+filenameOnly+"-"+conv.Int2Str(int(crc32))+fileSuffix
@@ -90,26 +91,34 @@ func SaveUploadedImage(id int, userId int, file *multipart.FileHeader) error {
 		image:=upload.Image{
 			Name: file.Filename,
 			Type: setting.UploadSetting.Type,
-			ProjectId: id,
+			ProjectId: pid,
 			StorePath: url,
 			Crc32Hash: crc32,
 			CreatorId: userId,
 			UploadTime: time.Now(),
 		}
-		return SaveImage(&image)
+		return SaveImage(pid,&image)
 	} else {
 		return errors.New("未定义的upload type")
 	}
 
 }
 
-func SaveImage(image *upload.Image) error {
+func SaveImage(pid int, image *upload.Image) error {
 	db.MysqlDB.Where("project_id = ? and crc32_hash = ? and name = ?",image.ProjectId,image.Crc32Hash,image.Name).Delete(&upload.Image{})
 
-	if err:=db.MysqlDB.Create(image).Error;err!=nil{
-		return err
+	if(pid>0){
+		if err:=db.MysqlDB.Model(&project.Project{Id: pid}).Association("Images").Append(image);err!=nil{
+			return err
+		}
+		return nil
+	} else {
+		if err:=db.MysqlDB.Create(image).Error;err!=nil{
+			return err
+		}
+		return nil
 	}
-	return nil
+
 }
 
 // SaveUploadedVideo 用于转化视频文件为指定的图片，同时保存到相应的目录和db中

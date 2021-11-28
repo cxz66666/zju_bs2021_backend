@@ -80,11 +80,14 @@ func InitRouter() *gin.Engine {
 		projectMod.POST("/new",middlware.AdminOnly(),project.CreateProject)
 		projectMod.GET("/list",project.ListProject)
 		projectMod.GET("/:id",project.GetProject)
+		projectMod.PUT("/cs/:id",project.ChangeStatus)
+		projectMod.POST("/addpi",project.AddPublicImage)
+		projectMod.GET("/cn/:id",project.GetAnnotationWorks)
 	}
 
 	imageMod:=api.Group("/image")
 	{
-		imageMod.GET("/list",upload.ListImage)
+		imageMod.GET("/list/:id",upload.ListImage)
 		imageMod.GET("/:pid/:crc32/*name",upload.GetImage)
 	}
 

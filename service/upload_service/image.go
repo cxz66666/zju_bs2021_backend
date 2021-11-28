@@ -1,9 +1,9 @@
 package upload_service
 
 import (
+	"annotation/model/project"
 	"annotation/model/upload"
 	"annotation/utils/db"
-	"gorm.io/gorm/clause"
 )
 
 func QueryImage(pid int,crc32 int,fileName string) (upload.Image,error) {
@@ -15,12 +15,21 @@ func QueryImage(pid int,crc32 int,fileName string) (upload.Image,error) {
 }
 
 
-func QueryListImages(pageSize int,current int)([]upload.Image,int,error){
+func QueryListImages(pid int,pageSize int,current int)([]upload.Image,int,error){
 	var ans []upload.Image
 	var total int64
-	if err:=db.MysqlDB.Model(&upload.Image{}).Count(&total).Offset((current-1)*pageSize).Limit(pageSize).
-		Preload(clause.Associations).Order("id desc").Find(&ans).Error;err!=nil{
+	//如果是查询公共图片集
+	if pid ==0 {
+		if err:=db.MysqlDB.Model(&upload.Image{}).Where("project_id = ?",pid).Count(&total).Offset((current-1)*pageSize).Limit(pageSize).Order("id desc").Find(&ans).Error;err!=nil{
 			return nil,0,err
+		}
+		return ans,int(total),nil
+	}
+	//count和详情分开查
+
+	total=db.MysqlDB.Model(&project.Project{Id: pid}).Association("Images").Count()
+	if err:=db.MysqlDB.Model(&project.Project{Id: pid}).Offset((current-1)*pageSize).Limit(pageSize).Order("id desc").Association("Images").Find(&ans);err!=nil{
+		return nil,0,err
 	}
 	return ans,int(total),nil
 }

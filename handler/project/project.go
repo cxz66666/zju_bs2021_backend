@@ -8,12 +8,12 @@ import (
 	"annotation/utils/authUtils"
 	"annotation/utils/response"
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"strconv"
 	"time"
 )
 
 func CreateProject(c *gin.Context) {
-
 	createReq:=project.ProjectCreateReq{}
 	if err:=c.ShouldBind(&createReq);err!=nil{
 		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
@@ -115,19 +115,25 @@ func GetProject(c *gin.Context)  {
 	idStr:=c.Param("id")
 	var id int
 	if idInt,err:=strconv.ParseInt(idStr,10,64);err!=nil{
-		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg("pageSize解析错误"))
+		c.Set(define.ANNOTATIONRESPONSE,response.Failed(http.StatusNotFound))
 		c.Abort()
 		return
 	} else {
 		id=int(idInt)
 	}
 	p,err:=project_service.QueryProjectById(id)
+	p.AnnotationMap=make(map[int]project.Annotation)
+
 	if err!=nil{
 		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
 		c.Abort()
 		return
 	}
-
+	for k,m:=range p.Annotations{
+		m.Src=m.Image.GetUrl()
+		p.AnnotationMap[m.ImageId]=m
+		p.Annotations[k]=m
+	}
 	c.Set(define.ANNOTATIONRESPONSE,response.JSONData(p))
 
 	return
@@ -138,7 +144,7 @@ func ChangeStatus(c *gin.Context)  {
 	idStr:=c.Param("id")
 	var id int
 	if idInt,err:=strconv.ParseInt(idStr,10,64);err!=nil{
-		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg("pageSize解析错误"))
+		c.Set(define.ANNOTATIONRESPONSE,response.Failed(http.StatusNotFound))
 		c.Abort()
 		return
 	} else {
@@ -150,6 +156,102 @@ func ChangeStatus(c *gin.Context)  {
 		c.Abort()
 		return
 	}
-	err:=
+	err:=project_service.ChangeStatus(id,cs.Type)
+	if err!=nil{
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
+		c.Abort()
+		return
+	}
+	c.Set(define.ANNOTATIONRESPONSE,response.JSONData("success"))
+	return
 
+
+}
+
+// 从公共图片加到项目中
+func AddPublicImage(c *gin.Context)  {
+	publicReq:=project.ProjectAddPublicReq{}
+	if err:=c.ShouldBind(&publicReq);err!=nil{
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
+		c.Abort()
+		return
+	}
+	err:=project_service.AddImageAssociation(publicReq.ProjectId,publicReq.ImageId)
+	if err!=nil{
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
+		c.Abort()
+		return
+	}
+	c.Set(define.ANNOTATIONRESPONSE,response.JSONData("success"))
+	return
+}
+
+// 新获取若干任务
+func GetAnnotationWorks(c *gin.Context) {
+	tmp,_:=c.Get(define.ANNOTATIONPOLICY)
+	policy:=tmp.(authUtils.Policy)
+	numStr:=c.Query("num")
+
+	var num int
+	if len(numStr)==0 {
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg("num不能为空"))
+		c.Abort()
+		return
+	} else {
+		if pageSizeInt,err:=strconv.ParseInt(numStr,10,64);err!=nil{
+			c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg("num解析错误"))
+			c.Abort()
+			return
+		} else {
+			num=int(pageSizeInt)
+		}
+	}
+	idStr:=c.Param("id")
+	var id int
+	if idInt,err:=strconv.ParseInt(idStr,10,64);err!=nil{
+		c.Set(define.ANNOTATIONRESPONSE,response.Failed(http.StatusNotFound))
+		c.Abort()
+		return
+	} else {
+		id=int(idInt)
+	}
+	p,err:=project_service.QueryProjectById(id)
+	p.AnnotationMap=make(map[int]project.Annotation)
+	if err!=nil{
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
+		c.Abort()
+		return
+	}
+	for _,m:=range p.Annotations{
+		p.AnnotationMap[m.ImageId]=m
+	}
+	var newAnnotations []project.Annotation
+	for _,m:=range p.Images{
+		if _,ok:=p.AnnotationMap[m.Id];!ok{
+			newAnnotations = append(newAnnotations, project.Annotation{
+				ProjectId: id,
+				WorkerId: policy.GetId(),
+				ImageId: m.Id,
+				Regions: "",
+				Type: project.Acreated,
+				LastEditTime: time.Now(),
+				Src: m.GetUrl(),
+			})
+			if len(newAnnotations)==num{
+				break;
+			}
+		}
+	}
+	err=project_service.AddNewAnnotation(id,newAnnotations)
+	if err!=nil{
+		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
+		c.Abort()
+		return
+	}
+
+	c.Set(define.ANNOTATIONRESPONSE,response.JSONData(gin.H{
+		"number": len(newAnnotations),
+		"data":newAnnotations,
+	}))
+	return
 }

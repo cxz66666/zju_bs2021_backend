@@ -73,8 +73,17 @@ func GetImage(c *gin.Context)  {
 func ListImage(c *gin.Context)  {
 	pageSizeStr:=c.Query("pageSize")
 	currentStr:=c.Query("current")
+	idStr:=c.Param("id")
+	var pageSize,current,id int
 
-	var pageSize,current int
+
+	if pageSizeInt,err:=strconv.ParseInt(idStr,10,64);err!=nil{
+			c.Set(define.ANNOTATIONRESPONSE,response.Failed(http.StatusNotFound))
+			c.Abort()
+			return
+	} else {
+			id=int(pageSizeInt)
+	}
 	if len(pageSizeStr)==0 {
 		pageSize=20
 	} else {
@@ -98,7 +107,7 @@ func ListImage(c *gin.Context)  {
 			current=int(currentInt)
 		}
 	}
-	images,total,err:=upload_service.QueryListImages(pageSize,current)
+	images,total,err:=upload_service.QueryListImages(id,pageSize,current)
 	if err!=nil{
 		c.Set(define.ANNOTATIONRESPONSE,response.JSONErrorWithMsg(err.Error()))
 		c.Abort()
