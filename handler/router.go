@@ -66,6 +66,8 @@ func InitRouter() *gin.Engine {
 	uploadMod := api.Group("/upload").Use(middlware.AuthenticationMiddleware(), middlware.StaffOnly())
 	{
 		uploadMod.POST("/image", upload.UploadImage)
+		uploadMod.POST("/video", upload.UploadVideo)
+
 	}
 
 	settingMod := api.Group("/setting").Use(middlware.AuthenticationMiddleware(), middlware.AdminOnly())
@@ -78,12 +80,13 @@ func InitRouter() *gin.Engine {
 	{
 		projectMod.POST("/new", middlware.AdminOnly(), project.CreateProject)
 		projectMod.GET("/list", project.ListProject)
-		projectMod.PUT("/cs/:id", project.ChangeStatus)
+		projectMod.PUT("/cs/:id", middlware.AdminOnly(), project.ChangeStatus)
 		projectMod.POST("/addpi", project.AddPublicImage)
 		projectMod.GET("/cn/:id", project.GetAnnotationWorks)
 		projectMod.POST("/cr", project.ChangeRegion)
 		projectMod.POST("/ct", project.ChangeAnnotationType)
 		projectMod.GET("/:id", project.GetProject)
+		projectMod.DELETE("/:id", middlware.AdminOnly(), project.DeleteProject)
 
 	}
 

@@ -30,7 +30,7 @@ type Project struct {
 	//该任务包含的图片
 	Images []upload.Image `json:"images" gorm:"many2many:project_images;"`
 	//该任务产生的Annotation
-	Annotations []Annotation `json:"annotations" gorm:"many2many:project_annotation"`
+	Annotations []Annotation `json:"annotations" gorm:"foreignKey:ProjectId;references:Id"`
 
 	Creator   user.User `json:"creator" gorm:"foreignKey:CreatorId;references:UserId"`
 	CreatorId int

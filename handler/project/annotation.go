@@ -43,4 +43,3 @@ func ChangeAnnotationType(c *gin.Context) {
 	c.Set(define.ANNOTATIONRESPONSE, response.JSONData("success"))
 	return
 }
-

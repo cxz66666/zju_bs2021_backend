@@ -264,3 +264,23 @@ func GetAnnotationWorks(c *gin.Context) {
 	}))
 	return
 }
+
+func DeleteProject(c *gin.Context) {
+	idStr := c.Param("id")
+	var id int
+	if idInt, err := strconv.ParseInt(idStr, 10, 64); err != nil {
+		c.Set(define.ANNOTATIONRESPONSE, response.Failed(http.StatusNotFound))
+		c.Abort()
+		return
+	} else {
+		id = int(idInt)
+	}
+	err := project_service.DeleteProjectByPid(id)
+	if err != nil {
+		c.Set(define.ANNOTATIONRESPONSE, response.JSONErrorWithMsg(err.Error()))
+		c.Abort()
+		return
+	}
+	c.Set(define.ANNOTATIONRESPONSE, response.JSONData("success"))
+	return
+}

@@ -67,3 +67,11 @@ func AddNewAnnotation(pid int, newAnnotations []project.Annotation) error {
 	}
 	return nil
 }
+
+// DeleteProjectByPid 根据pid删除项目
+func DeleteProjectByPid(pid int) error {
+	if err := db.MysqlDB.Debug().Select(clause.Associations).Delete(&project.Project{Id: pid}).Error; err != nil {
+		return err
+	}
+	return nil
+}

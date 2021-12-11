@@ -17,7 +17,6 @@ const (
 
 type Annotation struct {
 	Id        int          `json:"id" gorm:"primaryKey"`
-	Project   Project      `json:"project" gorm:"foreignKey:ProjectId;references:Id"`
 	ProjectId int          `json:"projectId"`
 	Worker    user.User    `json:"worker" gorm:"foreignKey:WorkerId;references:UserId"`
 	WorkerId  int          `json:"workerId"`
