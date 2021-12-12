@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"annotation/handler/info"
 	"annotation/handler/ping"
 	"annotation/handler/project"
 	"annotation/handler/tag"
@@ -89,12 +90,14 @@ func InitRouter() *gin.Engine {
 		projectMod.DELETE("/:id", middlware.AdminOnly(), project.DeleteProject)
 
 	}
-
 	imageMod := api.Group("/image")
 	{
-		imageMod.GET("/list/:id", upload.ListImage)
+		imageMod.GET("/list/:id", middlware.AuthenticationMiddleware(), middlware.StaffOnly(), upload.ListImage)
 		imageMod.GET("/:pid/:crc32/*name", upload.GetImage)
 	}
-
+	infoMod := api.Group("/info").Use(middlware.AuthenticationMiddleware(), middlware.StaffOnly())
+	{
+		infoMod.GET("/workspace", info.GetWorkspace)
+	}
 	return r
 }

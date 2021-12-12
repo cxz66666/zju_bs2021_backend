@@ -13,7 +13,7 @@ func ChangeRegion(crReq project.AnnotationRegionReq) error {
 		for _, m := range crReq.Data {
 			if err := tx.Model(&project.Annotation{
 				Id: m.Id,
-			}).Update("regions", m.Regions).Error; err != nil {
+			}).Updates(project.Annotation{Regions: m.Regions, PixelSize: m.PixelSize}).Error; err != nil {
 				return err
 			}
 		}

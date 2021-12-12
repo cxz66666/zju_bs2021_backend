@@ -242,6 +242,7 @@ func GetAnnotationWorks(c *gin.Context) {
 				WorkerId:     policy.GetId(),
 				ImageId:      m.Id,
 				Regions:      "",
+				PixelSize:    "",
 				Type:         project.Acreated,
 				LastEditTime: time.Now(),
 				Src:          m.GetUrl(),

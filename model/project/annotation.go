@@ -23,7 +23,9 @@ type Annotation struct {
 	Image     upload.Image `json:"image" gorm:"foreignKey:ImageId;references:Id"`
 	ImageId   int          `json:"imageId"`
 
-	Regions      string       `json:"regions"`
+	Regions   string `json:"regions"`
+	PixelSize string `json:"pixelSize"`
+
 	Type         AnnotateType `json:"type"`
 	LastEditTime time.Time    `json:"lastEditTime"`
 
@@ -37,8 +39,9 @@ type AnnotationRegionReq struct {
 
 //用于单个标注内容的修改
 type AnnotationReginUpdate struct {
-	Id      int    `json:"id" binding:"required"`
-	Regions string `json:"regions"`
+	Id        int    `json:"id" binding:"required"`
+	Regions   string `json:"regions"`
+	PixelSize string `json:"pixelSize"`
 }
 
 type AnnotationTypeReq struct {
