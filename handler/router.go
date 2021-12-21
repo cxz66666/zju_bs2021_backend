@@ -36,7 +36,7 @@ func InitRouter() *gin.Engine {
 		userMod.POST("/register", user.CreateUser)
 		userMod.PUT("/me", middlware.AuthenticationMiddleware(), middlware.StaffOnly(), user.ModifyInfo)
 	}
-	usersMod := api.Group("/users").Use(middlware.AuthenticationMiddleware(), middlware.SysAdminOnly())
+	usersMod := api.Group("/users").Use(middlware.AuthenticationMiddleware(), middlware.AdminOnly())
 	{
 		usersMod.GET("/list", user.GetUsers)
 		usersMod.DELETE("/user", user.DeleteUsers)
@@ -71,7 +71,7 @@ func InitRouter() *gin.Engine {
 
 	}
 
-	settingMod := api.Group("/setting").Use(middlware.AuthenticationMiddleware(), middlware.AdminOnly())
+	settingMod := api.Group("/setting").Use(middlware.AuthenticationMiddleware(), middlware.SysAdminOnly())
 	{
 		settingMod.GET("/setting", upload.GetSetting)
 		settingMod.PUT("/setting", upload.UpdateSetting)
