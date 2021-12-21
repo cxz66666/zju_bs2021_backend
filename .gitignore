@@ -20,3 +20,4 @@ runtime/
 # vendor/
 conf/app.ini
 test/
+docker-compose.yaml
